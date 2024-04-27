@@ -17,3 +17,32 @@ SELECT `infectious_cases`.`Entity`,
     `infectious_cases`.`Number_smallpox`,
     `infectious_cases`.`Number_cholera_cases`
 FROM `pandemic`.`infectious_cases`;
+
+Пункт 2
+2.1
+CREATE TABLE countries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    entity VARCHAR(255),
+    code VARCHAR(64)
+);
+2.2
+INSERT INTO countries (entity, code)
+SELECT Entity, Code 
+FROM infectious_cases 
+GROUP BY Entity, Code;
+2.3
+ALTER TABLE infectious_cases 
+ADD COLUMN country_id INT NOT NULL DEFAULT 0;
+2.4
+SET SQL_SAFE_UPDATES = 0;
+UPDATE infectious_cases 
+	INNER JOIN countries  ON infectious_cases.Code = countries.code
+SET infectious_cases.country_id = countries.id;
+SET SQL_SAFE_UPDATES = 1;
+2.5
+ALTER TABLE infectious_cases
+	DROP COLUMN Entity,
+  DROP COLUMN Code;
+2.6
+ALTER TABLE infectious_cases
+ADD CONSTRAINT fk_country_id FOREIGN KEY (country_id) REFERENCES countries(id);
