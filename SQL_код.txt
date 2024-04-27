@@ -46,3 +46,45 @@ ALTER TABLE infectious_cases
 2.6
 ALTER TABLE infectious_cases
 ADD CONSTRAINT fk_country_id FOREIGN KEY (country_id) REFERENCES countries(id);
+
+Пункт 3
+SELECT 
+	AVG(Number_rabies) AS avg_rabies, 
+    MIN(Number_rabies) AS min_rabies, 
+    MAX(Number_rabies) AS max_rabies, 
+    SUM(Number_rabies) AS rabies_sum
+FROM infectious_cases
+WHERE LENGTH(Number_rabies) > 0
+GROUP BY country_id 
+ORDER BY avg_rabies DESC
+LIMIT 10;
+
+Пункт 4
+SELECT
+    Year,
+    CONCAT(Year, '-01-01') AS start_of_year,
+    CURDATE() AS today_date,
+    TIMESTAMPDIFF(YEAR, CONCAT(Year, '-01-01'), CURDATE()) AS year_difference
+FROM
+    infectious_cases;
+
+Пункт 5
+DROP FUNCTION IF EXISTS YearDifferenceFromToday;
+DELIMITER //
+CREATE FUNCTION YearDifferenceFromToday(input_year INT)
+RETURNS INT
+DETERMINISTIC 
+BEGIN
+    DECLARE year_diff INT;
+    SET year_diff = TIMESTAMPDIFF(YEAR, CONCAT(input_year, '-01-01'), CURDATE());
+    RETURN year_diff;
+END //
+DELIMITER ;
+
+SELECT
+    Year,
+    CONCAT(Year, '-01-01') AS start_of_year,
+    CURDATE() AS taday_date,
+    YearDifferenceFromToday(Year) AS year_difference
+FROM
+    infectious_cases;
